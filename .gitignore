@@ -1,23 +1,19 @@
-
-.DS_Store
-build
-.git
-*.egg-info
-dist
+# data relevant folders
 output
+origin_data/coco
 
-data/coco
-data/coco.zip
-data/samples
-
-data/custom
+# private data folders
 data/lumbar
 
-backup
+# pretrained weights
 weights/*.weights
 weights/darknet53.conv.74
 
-__pycache__
-checkpoints
-
+# spyder IDE
 .spyproject
+
+# python relevant
+__pycache__
+
+# pytorch relevant
+checkpoints

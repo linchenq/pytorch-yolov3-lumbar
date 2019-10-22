@@ -17,3 +17,4 @@ __pycache__
 
 # pytorch relevant
 checkpoints
+logs

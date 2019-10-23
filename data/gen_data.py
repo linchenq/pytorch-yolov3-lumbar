@@ -8,6 +8,7 @@ import cv2
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.image import imsave
+from PIL import Image
 
 from lxml import etree
 
@@ -59,7 +60,7 @@ class Unit(object):
 
     def gen_jpeg(self, basename, path=JPEG_PATH):
         path = path + basename + ".jpg"
-        imsave(path, self.raw_image, cmap='gray')
+        imsave(path, self.raw_image, cmap = plt.get_cmap('gray'))
 
     def gen_xml(self, basename, path=XML_PATH):
         path = path + basename + ".xml"

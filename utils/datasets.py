@@ -37,14 +37,14 @@ def random_resize(images, min_size=288, max_size=448):
 
 
 class ImageFolder(Dataset):
-    def __init__(self, folder_path, img_size=416):
+    def __init__(self, folder_path, img_size=512):
         self.files = sorted(glob.glob("%s/*.*" % folder_path))
         self.img_size = img_size
 
     def __getitem__(self, index):
         img_path = self.files[index % len(self.files)]
         # Extract image as PyTorch tensor
-        img = transforms.ToTensor()(Image.open(img_path))
+        img = transforms.ToTensor()(Image.open(img_path).convert('L'))
         # Pad to square resolution
         img, _ = pad_to_square(img, 0)
         # Resize

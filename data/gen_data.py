@@ -98,6 +98,7 @@ class Unit(object):
             target = target.astype(np.float32)
 
             x, y, w, h = cv2.boundingRect(target)
+            x, y, w, h = (x + w/2.0), (y - h/2.0), w, h
             x, y, w, h = x/IMAGE_SIZE, y/IMAGE_SIZE, w/IMAGE_SIZE, h/IMAGE_SIZE
 
             txt_dict[i] = (x, y, w, h)

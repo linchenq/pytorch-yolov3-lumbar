@@ -22,6 +22,7 @@ from torchvision import transforms
 from torch.autograd import Variable
 import torch.optim as optim
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # path set
@@ -161,7 +162,7 @@ if __name__ == "__main__":
                 model,
                 path=valid_path,
                 iou_thres=0.5,
-                conf_thres=0.5,
+                conf_thres=0.001,
                 nms_thres=0.5,
                 img_size=opt.img_size,
                 batch_size=1,

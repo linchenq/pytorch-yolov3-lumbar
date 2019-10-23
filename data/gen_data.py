@@ -1,4 +1,4 @@
-import re
+
 import os
 import json
 import numpy as np
@@ -8,7 +8,7 @@ import cv2
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.image import imsave
-from PIL import Image
+from sklearn.model_selection import train_test_split
 
 from lxml import etree
 
@@ -24,11 +24,14 @@ JPEG_PATH = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/im
 XML_PATH = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/annotations/"
 
 # path of training/validing sets
-TRAIN_PATH = "C:/Research/LumbarSpine/Data/TestTrain/"
-VALID_PATH = "C:/Research/LumbarSpine/Data/TestTest/"
 LABEL_TXT = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/labels/"
+
+# txt files relevant to yolov3
 TRAIN_TXT = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/train.txt"
 VALID_TXT = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/valid.txt"
+TEST_TXT = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/test.txt"
+
+TEST_TARGET_PATH ="C:/Research/LumbarSpine/Data/Target/"
 
 # TAGS
 TAGS = ['D1', 'D2', 'D3', 'D4', 'D5', 'S']
@@ -78,7 +81,7 @@ class Unit(object):
             if DEBUG:
                 plt.gca().add_patch(patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none'))
 
-            xmin, ymin, xmax, ymax = x, y-h, x+w, y
+            xmin, ymin, xmax, ymax = x, y, x+w, y+h
             xml_dict[tag] = (xmin, ymin, xmax, ymax)
 
         if DEBUG:
@@ -98,7 +101,7 @@ class Unit(object):
             target = target.astype(np.float32)
 
             x, y, w, h = cv2.boundingRect(target)
-            x, y, w, h = (x + w/2.0), (y - h/2.0), w, h
+            x, y, w, h = (x + w/2.0), (y + h/2.0), w, h
             x, y, w, h = x/IMAGE_SIZE, y/IMAGE_SIZE, w/IMAGE_SIZE, h/IMAGE_SIZE
 
             txt_dict[i] = (x, y, w, h)
@@ -181,7 +184,47 @@ class XmlUnit(object):
             child.text = context
         return child
 
+# dataset generation
+
+def gen_txt(txt_path, filenames):
+    with open(txt_path, 'w') as out:
+        for filename in filenames:
+            suffix = os.path.splitext(file)[0]
+            print("data/lumbar/images/{}.jpg".format(suffix), file=out)
+
+def dataset_split(root_folder, train_txt, valid_txt, test_txt):
+    root = os.listdir(root_folder)
+
+    train, test, _, _ = train_test_split(root,
+                                         range(0, len(root)),
+                                         test_size=0.1,
+                                         random_state=17)
+
+    train, valid, _, _ = train_test_split(train,
+                                          range(0, len(train)),
+                                          test_size=0.1,
+                                          random_state=17)
+
+    gen_txt(TRAIN_TXT, train)
+    gen_txt(VALID_TXT, valid)
+    gen_txt(TEST_TXT, test)
+
+    gen_testset(test, "")
+
+def gen_testset(test_list, target):
+    for file in test_list:
+        filename = os.path.splitext(file)
+        filepath = os.path.join(ROOT_PATH, file)
+
+        if not os.path.isdir(filepath) and filename[-1] == ".mat":
+            tmp = Unit(filepath)
+            tmp.gen_jpeg(basename=filename[0], path=TEST_TARGET_PATH)
+
+
 if __name__ == '__main__':
+
+    # TODO : Reminder as below
+    # Remember to modify ROOT_PATH to the final folders
 
     files = os.listdir(ROOT_PATH)
 
@@ -198,14 +241,6 @@ if __name__ == '__main__':
 
             tmp.gen_txt(basename=filename[0])
 
-    with open(TRAIN_TXT, 'w') as out_train:
-        for f_train in os.listdir(TRAIN_PATH):
-            filename = os.path.splitext(f_train)
-            print("data/lumbar/images/{}.jpg".format(filename[0]), file=out_train)
-
-    with open(VALID_TXT, 'w') as out_test:
-        for f_valid in os.listdir(VALID_PATH):
-            filename = os.path.splitext(f_valid)
-            print('data/lumbar/images/{}.jpg'.format(filename[0]), file=out_test)
+    dataset_split(ROOT_PATH, TRAIN_TXT, VALID_TXT, TEST_TXT)
 
 

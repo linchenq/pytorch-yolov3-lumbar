@@ -1,4 +1,5 @@
 classes= 6
 train=data/lumbar/train.txt
 valid=data/lumbar/valid.txt
+test=data/lumbar/test.txt
 names=data/lumbar/classes.names

@@ -187,7 +187,7 @@ class YOLOLayer(nn.Module):
                 anchors=self.scaled_anchors,
                 ignore_thres=self.ignore_thres,
             )
-            # convert obj_mask, noobj_mask from unit8 to bool
+            # convert obj_mask, noobj_mask from bytetensor to bool
             obj_mask = obj_mask.bool()
             noobj_mask = noobj_mask.bool()
 

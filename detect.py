@@ -17,6 +17,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 from torch.autograd import Variable
 
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.ticker import NullLocator
@@ -100,8 +101,9 @@ if __name__ == "__main__":
         # Create plot
         img = np.array(Image.open(path).convert('L'))
         plt.figure()
-        fig, ax = plt.subplots(1)
-        ax.imshow(img)
+        # fig, ax = plt.subplots(1)
+        # ax.imshow(img)
+        plt.imshow(img, cmap='gray')
 
         # Draw bounding boxes and labels of detections
         if detections is not None:
@@ -121,16 +123,26 @@ if __name__ == "__main__":
                 # Create a Rectangle patch
                 bbox = patches.Rectangle((x1, y1), box_w, box_h, linewidth=2, edgecolor=color, facecolor="none")
                 # Add the bbox to the plot
-                ax.add_patch(bbox)
+                # ax.add_patch(bbox)
+                plt.gca().add_patch(bbox)
                 # Add label
+                # 1. Add text
                 plt.text(
-                    x1,
+                    (0.7 * x1),
                     y1,
                     s=classes[int(cls_pred)],
                     color="white",
-                    verticalalignment="top",
-                    bbox={"color": color, "pad": 0},
+                    verticalalignment="top"
+                    # bbox={"color": color, "pad": 0},
                 )
+                # 2. OR Add anotation
+                # plt.annotate(
+                #     classes[int(cls_pred)],
+                #     xy=(x1, y1),
+                #     xytext=((3.0*x1-x2)/2.0, y1),
+                #     color='w',
+                #     arrowprops=dict(arrowstyle='->',connectionstyle='arc3',color='white')
+                # )
 
         # Save generated image with detections
         plt.axis("off")

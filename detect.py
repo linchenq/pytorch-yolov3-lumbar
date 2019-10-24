@@ -26,9 +26,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--image_folder", type=str, default="data/lumbar/samples", help="path to dataset")
     parser.add_argument("--model_def", type=str, default="config/yolov3-lumbar.cfg", help="path to model definition file")
-    parser.add_argument("--weights_path", type=str, default="checkpoints/yolov3_ckpt_2.pth", help="path to weights file")
+    parser.add_argument("--weights_path", type=str, default="checkpoints/yolov3_ckpt_196.pth", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/lumbar/classes.names", help="path to class label file")
-    parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
+    parser.add_argument("--conf_thres", type=float, default=0.9, help="object confidence threshold")
     parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--batch_size", type=int, default=1, help="size of the batches")
     parser.add_argument("--n_cpu", type=int, default=0, help="number of cpu threads to use during batch generation")
@@ -112,7 +112,29 @@ if __name__ == "__main__":
             unique_labels = detections[:, -1].cpu().unique()
             n_cls_preds = len(unique_labels)
             bbox_colors = random.sample(colors, n_cls_preds)
+
+            # TODO: Only modified on the lumbar Dataset
+            #### Since each image could only contain one type of unique disks
+            unique_dict = {}
             for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+                cur = classes[int(cls_pred)]
+                if cur not in unique_dict:
+                    unique_dict[cur] = (x1, y1, x2, y2, conf, cls_conf, cls_pred)
+                else:
+                    if cls_conf > unique_dict[cur][5]:
+                        unique_dict[cur] = (x1, y1, x2, y2, conf, cls_conf, cls_pred)
+            new_detections = torch.Tensor([])
+            for k, v in unique_dict.items():
+                add_tensor = torch.Tensor([i for i in v])
+                new_detections = torch.cat((new_detections, add_tensor), 0)
+            new_detections = new_detections.view(-1, 7)
+            #### END
+
+            # TODO: Only modified on the lumbar Dataset
+            #### Since each image could only contain one type of unique disks
+            # for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+            for x1, y1, x2, y2, conf, cls_conf, cls_pred in new_detections:
+            #### END
 
                 print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
 

@@ -1,4 +1,3 @@
-
 import os
 import json
 import numpy as np
@@ -12,6 +11,8 @@ from sklearn.model_selection import train_test_split
 
 from lxml import etree
 
+from tqdm import tqdm
+
 # image size
 IMAGE_SIZE = 512.0
 
@@ -19,7 +20,7 @@ IMAGE_SIZE = 512.0
 MESH_PATH = "C:/Research/LumbarSpine/Data/json/GeneralSpineMesh.json"
 
 # path of origin mats, generated jpeg/xml path
-ROOT_PATH = "C:/Research/LumbarSpine/Data/TestImageShapePair/"
+ROOT_PATH = "C:/Research/LumbarSpine/Data/SpineMesh/"
 JPEG_PATH = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/images/"
 XML_PATH = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/annotations/"
 
@@ -31,7 +32,7 @@ TRAIN_TXT = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/tr
 VALID_TXT = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/valid.txt"
 TEST_TXT = "C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/test.txt"
 
-TEST_TARGET_PATH ="C:/Research/LumbarSpine/Data/Target/"
+TEST_TARGET_PATH ="C:/Research/LumbarSpine/Github/pytorch-yolov3-lumbar/data/lumbar/samples/"
 
 # TAGS
 TAGS = ['D1', 'D2', 'D3', 'D4', 'D5', 'S']
@@ -187,9 +188,10 @@ class XmlUnit(object):
 # dataset generation
 
 def gen_txt(txt_path, filenames):
+    print ("Generating dataset relevant txts...")
     with open(txt_path, 'w') as out:
-        for filename in filenames:
-            suffix = os.path.splitext(file)[0]
+        for filename in tqdm(filenames):
+            suffix = os.path.splitext(filename)[0]
             print("data/lumbar/images/{}.jpg".format(suffix), file=out)
 
 def dataset_split(root_folder, train_txt, valid_txt, test_txt):
@@ -212,7 +214,8 @@ def dataset_split(root_folder, train_txt, valid_txt, test_txt):
     gen_testset(test, "")
 
 def gen_testset(test_list, target):
-    for file in test_list:
+    print ("Generating datasets...")
+    for file in tqdm(test_list):
         filename = os.path.splitext(file)
         filepath = os.path.join(ROOT_PATH, file)
 
@@ -227,8 +230,8 @@ if __name__ == '__main__':
     # Remember to modify ROOT_PATH to the final folders
 
     files = os.listdir(ROOT_PATH)
-
-    for file in files:
+    print ("Generating annotations/images...")
+    for file in tqdm(files):
         filename = os.path.splitext(file)
         filepath = os.path.join(ROOT_PATH, file)
 
